@@ -126,3 +126,32 @@ plt.show()
 plt.figure(figsize = (10,6))
 plt.scatter(df['transaction_day_of_week'],df['transaction_amount'], c= df['transaction_amount'], cmap = 'viridis')
 plt.show()    
+
+
+'''
+The DataFrame contains missing values in the email and country columns. Additionally, the purchase_date column is in a string format, and the purchase_amount column contains outliers.
+Your task is to:
+Handle the missing values in the email and country columns.
+Convert the purchase_date column to a datetime format.
+Remove outliers from the purchase_amount column.
+Create a new column purchase_year that extracts the year from the purchase_date column.
+'''
+import pandas as pd
+
+df['email'].fillna('No Email', inplace=True)
+df['country'].fillna('Unknown', inplace=True)
+
+df['purchase_date'] = pd.to_datetime(df['purchase_date'], errors='coerce')
+
+Q1 = df['purchase_amount'].quantile(0.25)
+Q3 = df['purchase_amount'].quantile(0.75)
+IQR = Q3 - Q1
+
+lower_bound = Q1 - 1.5 * IQR
+upper_bound = Q3 + 1.5 * IQR
+
+df = df[(df['purchase_amount'] >= lower_bound) & (df['purchase_amount'] <= upper_bound)]
+
+df['purchase_year'] = df['purchase_date'].dt.year
+
+print(df.head())
